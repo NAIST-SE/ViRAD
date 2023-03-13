@@ -7,12 +7,14 @@ ROSアプリケーションのTopic通信を可視化するためのツールで
 
 ## Dependencies 依存関係
 
-実行に必要なもの
-
-- Python (3.8 で開発しています)
-- Graphviz
-- システムにインストールされた Graphviz を利用するための Python モジュール graphviz 
-  -  `pip install graphviz` でインストールできます．
+- Python (developed using 3.8)
+- lxml (https://lxml.de/) for processing XML files
+  - You need `pip install lxml` 
+- graphviz module for Python
+  -  `pip install graphviz`
+- Graphviz (https://graphviz.org/) for visualization
+  - You do not need Graphviz if you use only textual output
+  - テキスト出力を使うだけであれば必要ありません。
 
 ## Usage
 
