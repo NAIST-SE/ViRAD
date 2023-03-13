@@ -60,7 +60,16 @@ PYTHON_FILES = "**/*.py"
 
 OUTPUT_FORMAT = 'svg'
 
-def get_topic(lst): # topic取得の関数
+def get_topic(lst: str):
+    """Get a topic name from a code fragment. 
+
+    This program assumes that a topic name is usually hard-coded in a literal.
+    リテラルとして書かれているものがトピック名と仮定して識別します．
+
+    :param lst: A code fragment including a topic name, 
+        e.g. arguments of a subscribe function call.
+    :returns: A pair of a topic name and a flag representing'literal' or 'non-literal'.
+    """
     match = re.search(TOPIC_PATTERN, lst)
     non_match = re.search(NON_LITERAL_TOPIC_PATTERN, lst)
     if match:
@@ -69,7 +78,23 @@ def get_topic(lst): # topic取得の関数
         return non_match.group(1), 'non_literal'
     return None, None
 
-def get_topics(text, patterns, file_name):
+def get_topics(text: str, patterns: list, file_name: str):
+    """Find publish/subscriber patterns in source code.
+
+    This function checks subscribe/publish function call patterns
+    and extracts the topics used in the calls.
+
+    :param text: Source code to be analyzed
+    :param patterns: Regular expressions for finding topics.  
+        Each pattern should have a group named 'param'.
+        This function identifies identify a topic name from the part.
+    :param file_name: A source file name. 
+        This is included in the resultant list.
+    :returns: A pair of identified topics and a list of source code locations.
+        The identified topics is a set of strings.
+        The source code locations is a list of tuples including four elements 
+        (file name, start position, matched text, topic name).
+    """
     topics = set()
     match_text = list()
     for pattern_text in patterns:
