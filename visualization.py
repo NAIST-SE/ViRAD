@@ -110,7 +110,18 @@ def get_topics(text: str, patterns: list, file_name: str):
 
 
 class Node:
+
+    """
+    A node represents a ROS node represented by a source file.
+
+    Attribute `publishing_topics` is a list of topics published by the node
+    Attribute `subscribing_topics` is a list of topics that the node is subscribing
+    Attribute `locations` keeps a list of  locations of publish/subscribe function calls
+    """
+
     def __init__(self, file_name):
+        """Create a Node from the content of a source file
+        """
         self.file_name = file_name
         self.name = os.path.splitext(os.path.basename(file_name))[0] # ファイル名からnode名を取得
         self.publishing_topics = set()
@@ -124,6 +135,15 @@ class Node:
 
 
 class RosGraph:
+    """
+    A data-flow model of ROS application extracetd from source code patterns
+
+    Attribute `nodes` is a list of Node instances in the application.
+    Each node is identified by the file name.
+    `published_topics` and `subscribed_topics` count the number of nodes 
+    publishing/subscribing a topic.
+    """
+
     def __init__(self, files):
         self.nodes = list()
         self.published_topics = Counter()
@@ -134,10 +154,11 @@ class RosGraph:
             self.published_topics.update(node.publishing_topics)
             self.subscribed_topics.update(node.subscribing_topics)
     
-    """
-    各ノードが publish している topic の一覧を[node,topic]の組のリストで返す
-    """
     def get_pub_lst(self):
+        """Returns a list of node-topic pairs in the graph.
+
+        Each pair (node, topic) represents the node publishes the topic.
+        """
         pub_lst = list() # [node,topic]
         for node in self.nodes:
             for topic_name in node.publishing_topics: 
@@ -152,6 +173,10 @@ class RosGraph:
         return pub_lst
     
     def get_sub_lst(self):
+        """Returns a list of node-topic pairs in the graph.
+
+        Each pair (node, topic) represents the node subscribes the topic.
+        """
         sub_lst = list() # [topic,node]
         for node in self.nodes:
             for topic_name in node.subscribing_topics: # ファイル内のsubを[topic,node]で格納
@@ -159,6 +184,10 @@ class RosGraph:
         return sub_lst
     
     def get_unsubscribed_topic_pulishers(self):
+        """Returns a list of triples (topic, node name, node file name) whose topic has no subscribers.
+
+        Each triple shows that the topic is published by the node.
+        """
         unsubscribed_topics = self.published_topics.keys() - self.subscribed_topics.keys()
         unsubscribed_topic_pulishers = list()
         for node in self.nodes:
@@ -167,12 +196,18 @@ class RosGraph:
         return unsubscribed_topic_pulishers
     
     def get_unpublished_topic_subscribers(self):
+        """Returns a list of triples (topic, node name, node file name) whose topic has no publishers.
+
+        Each triple shows that the topic is subscribed by the node.
+        """
         unpublished_topics = self.subscribed_topics.keys() - self.published_topics.keys()
         unpublished_topic_subscribers = list()
         for node in self.nodes:
             for topic_name in (node.subscribing_topics & unpublished_topics):
                 unpublished_topic_subscribers.append([topic_name, node.name, node.file_name])
         return unpublished_topic_subscribers
+
+
 
 class Remap:
     def __init__(self, xml_files, python_files, files):
