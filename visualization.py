@@ -506,6 +506,11 @@ def make_output_list(model, remaps): # テキスト化のためのリスト作�
     return output_list
 
 def del_element(lst, exclusion):
+    """Remove data-flow edges from the output list
+
+    This function assumes that the list includes 
+    triples representing "connection"s (publisher, topic, subscriber).
+    """
     del_lst = exclusion.split(',')
     copy_lst = copy.deepcopy(lst)
 
